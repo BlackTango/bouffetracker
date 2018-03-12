@@ -105,8 +105,18 @@
     <div class="modal-content center">
       <h4>Add Meal</h4>
       <div class="row">
+        <div class="input-field col s12 m4">
+          <input placeholder="Name" id="food_name" type="text" class="validate">
+        </div>
+        <div class="input-field col s12 m4">
+          <input placeholder="time" id="food_name" type="date"  class="validate">
+        </div>
+        <div class="input-field col s12 m4">
+          <input placeholder="time" id="food_name" type="time"  class="validate">
+        </div>
 
-
+      </div>
+      <div class="row">
         <div class="input-field col s6">
           <input placeholder="Name" id="food_name" type="text" class="validate">
         </div>
@@ -114,11 +124,13 @@
         <a class="btn-floating btn-large waves-effect waves-light deep-purple darken-3 s2">
           <i class="material-icons">search</i>
         </a>
+        <a class="btn-floating btn-large waves-effect waves-light deep-purple darken-3 s2">
+          <i class="material-icons">add</i>
+        </a>
 
-        <div class="input-field col s4">
-          <input placeholder="Quantity" id="food_name" type="number" class="validate">
+        <div class="input-field col s12">
+          <input placeholder="Quantity (g)" id="food_name" type="number" min="0" class="validate">
         </div>
-
       </div>
 
       <div class="row">
@@ -128,12 +140,25 @@
       <ul class="collapsible">
         <li>
           <div class="collapsible-header">
-            <i class="material-icons">filter_drama</i>First</div>
-          <div class="collapsible-body">
-            <div class="input-field col s6">
-              <input placeholder="Name" id="food_name" type="text" class="validate">
+
+            <div class="">
+              <span>ok</span>
             </div>
-            <span>Lorem ipsum dolor sit amet.</span>
+            <div class="right">
+              <span>ok</span>
+            </div>
+
+            <a class="right">lol</a>
+          </div>
+          <div class="collapsible-body">
+
+            <div class="row">
+              <div class="input-field col s12">
+                <input placeholder="Quantity (g)" id="food_name" type="number" min="0" class="validate">
+              </div>
+              <p>lol</p>
+            </div>
+
           </div>
         </li>
 
@@ -145,6 +170,22 @@
       <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">save</a>
     </div>
   </div>
+
+
+  <!-- Modal Trigger -->
+  <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a>
+
+  <!-- Modal Structure -->
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      <h4>Modal Header</h4>
+      <p>A bunch of text</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+  </div>
+
 
 
 

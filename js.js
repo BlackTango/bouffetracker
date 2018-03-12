@@ -2,13 +2,17 @@ $(document).ready(function () {
 
     var FOOD_DATABASE_KEY = "iLo6AsY2zbirsCYQpoemSIaMb9mNkXTmLyp9Cejj"
     var FOOD = get_from_local_storage("FOOD")
-    var SAVED_MEALS =[]
+    var SAVED_MEALS = []
 
-    // materialize objects initialisations
+    //materialize objects initialisations
     $('.timepicker').timepicker();
     $('.fixed-action-btn').floatingActionButton();
     $('.modal').modal();
     $('.collapsible').collapsible();
+    $('.datepicker').datepicker();
+
+
+
 
 
 
@@ -120,7 +124,7 @@ $(document).ready(function () {
 
 
 
-    function get_nutrition_information(identifier, grams,where) {
+    function get_nutrition_information(identifier, grams, where) {
         var phrase = ""
 
         for (var i = 0; i < identifier.length; i++) {
@@ -129,10 +133,10 @@ $(document).ready(function () {
             phrase += "&"
         }
 
-        httpGetAsync("https://api.nal.usda.gov/ndb/V2/reports?" + phrase + "type=f&format=json&api_key=" + FOOD_DATABASE_KEY, nutrition_information_return, grams,where)
+        httpGetAsync("https://api.nal.usda.gov/ndb/V2/reports?" + phrase + "type=f&format=json&api_key=" + FOOD_DATABASE_KEY, nutrition_information_return, grams, where)
     }
 
-    function nutrition_information_return(returned_search, grams,where) {
+    function nutrition_information_return(returned_search, grams, where) {
 
         var tempo = JSON.parse(returned_search)
         console.log(tempo, grams)
@@ -149,7 +153,7 @@ $(document).ready(function () {
 
     console.log(day_push(new Date(2017, 0, 4)))
 
-    get_nutrition_information([45135043, 45135047], 20,meal_data.food_list)
+    get_nutrition_information([45135043, 45135047], 20, meal_data.food_list)
 
 
 
