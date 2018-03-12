@@ -2,11 +2,16 @@ $(document).ready(function () {
 
     var FOOD_DATABASE_KEY = "iLo6AsY2zbirsCYQpoemSIaMb9mNkXTmLyp9Cejj"
     var FOOD = get_from_local_storage("FOOD")
-
-
+    var SAVED_MEALS =[]
 
     // materialize objects initialisations
     $('.timepicker').timepicker();
+    $('.fixed-action-btn').floatingActionButton();
+    $('.modal').modal();
+    $('.collapsible').collapsible();
+
+
+
 
 
     // fonction pour faire des assync call pour les api 
@@ -145,6 +150,9 @@ $(document).ready(function () {
     console.log(day_push(new Date(2017, 0, 4)))
 
     get_nutrition_information([45135043, 45135047], 20,meal_data.food_list)
+
+
+
 
 
     console.log(meal_data)
