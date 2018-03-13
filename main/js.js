@@ -4,6 +4,10 @@ $(document).ready(function () {
     var FOOD = get_from_local_storage("FOOD")
     var SAVED_MEALS = []
 
+    //meal edit indexes
+    var DAILY_MEAL_INDEX;
+    var TODAY_INDEX;
+
     //meal add variables
     var meal_list = [];
     var search_result;
@@ -17,6 +21,12 @@ $(document).ready(function () {
     $('.datepicker').datepicker();
     $('input#input_text, textarea#textarea2').characterCounter();
 
+
+
+    //initialisation
+
+
+    refresh_page()
 
 
     // fonction pour faire des assync call pour les api 
@@ -43,13 +53,16 @@ $(document).ready(function () {
         if (tempo) {
             for (var i = 0; i < tempo.length; i++) {
                 tempo[i].date = new Date(tempo[i].date)
+
                 for (var j = 0; j < tempo[i].data.length; j++) {
+
                     try {
                         tempo[i].data[j].time = new Date(tempo[i].data[j].time)
                     }
                     catch (error) {
                         console.log(error)
                     }
+
                 }
             }
         } else tempo = [];
@@ -95,30 +108,65 @@ $(document).ready(function () {
     }
 
 
+    function refresh_page() {
+        update_daily_meals()
+        update_daily_resume()
+    }
+
     // actualise les valeur du tableau de daily resume 
     function update_daily_resume() {
+
+        $('#daily_resume').empty();
+
+        console.log(TODAY_INDEX, DAILY_MEAL_INDEX, )
+        var protein = 0
+        var carb = 0
+        var cal = 0
+        var fat_trans = 0
+        var fat_sat = 0
+
+
+        console.log(FOOD[TODAY_INDEX].data)
+        console.log(FOOD[TODAY_INDEX].data[0].meal_list_info)
+        console.log(FOOD[TODAY_INDEX].data[0].meal_list_info[0].nutrient)
+
+
+
+        for (var i = 0; i < FOOD[TODAY_INDEX].data.length; i++) {
+            for (var j = 0; j < FOOD[TODAY_INDEX].data[i].meal_list_info.length; j++) {
+                for (var k = 0; k < FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient.length; k++) {
+                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Protein") protein += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Energy") cal += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Carbohydrate, by difference") carb += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Fatty acids, total trans") fat_trans += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Fatty acids, total saturated") fat_sat += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                }
+            }
+        }
+
+        $('#daily_resume').append('<tr><td>' + cal.toFixed(2) + '</td><td>' + protein.toFixed(2) + '</td><td>' + carb.toFixed(2) + '</td><td>' + fat_trans.toFixed(2) + '</td><td>' + fat_sat.toFixed(2) + '</td></tr>');
+
+
 
     }
 
     //actualise les valeur du tableau de daily meals 
     function update_daily_meals() {
 
-        console.log("lol")
-
         var index = null
 
         for (var i = 0; i < FOOD.length; i++) {
-            if (FOOD[i].date.toString() == new Date(new Date().setHours(0, 0, 0, 0)).toString()) index = i;
+            if (FOOD[i].date.toString() == new Date(new Date().setHours(0, 0, 0, 0)).toString()) TODAY_INDEX = i;
         }
-        console.log(index)
 
-        if (!index) return;
+
+        if (!TODAY_INDEX) return;
 
 
         $('#daily_meals').empty();
 
-        for (var i = 0; i < FOOD[index].data.length; i++) {
-            $('#daily_meals').append('<tr><td>' + FOOD[index].data[i].name + '</td><td><a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + i + '_daily_meals" class="material-icons">edit</i></a></td></tr>')
+        for (var i = 0; i < FOOD[TODAY_INDEX].data.length; i++) {
+            $('#daily_meals').append('<tr><td>' + FOOD[TODAY_INDEX].data[i].name + '</td><td><a class="btn-floating btn-medium waves-effect waves-light red s2 modal-trigger" href="#edit_daily_meal"><i id="' + i + '_daily_meals"  class="material-icons">edit</i></a></td></tr>')
         }
 
     }
@@ -235,9 +283,17 @@ $(document).ready(function () {
             } else {
                 day = new Date(Date.parse($('#date').val() + " 00:00"))
             }
-        } else day = new Date()
+        } else if ($('#time').val()) {
+            var temp = new Date();
+            day = new Date(temp.getFullYear() + "-" + (temp.getMonth() + 1) + "-" + temp.getDate() + " " + $('#time').val());
+            console.log(day)
+        }
+        else day = new Date();
 
-        meal_data = { "name": $('#food_name').val(), "date": day, "meal_list_info": [] }
+
+
+
+        meal_data = { "name": $('#food_name').val(), "time": day, "meal_list_info": [] }
 
         var temp_aray = []
 
@@ -248,12 +304,9 @@ $(document).ready(function () {
         console.log(temp_aray)
 
         $('#main_page_update').empty();
-        $('#main_page_update').append('<div class="indeterminate"></div>');
-
+        $('#main_page_update').append('<div class="progress"><div class="indeterminate"></div></div>');
 
         get_nutrition_information(temp_aray)
-
-
 
     });
 
@@ -304,9 +357,10 @@ $(document).ready(function () {
         console.log(meal_list.length)
 
         for (var i = 0; i < meal_list.length; i++) {
-            info = { "description": tempo.foods[0].food.desc, "nutrient": tempo.foods[0].food.nutrients, "quantity": meal_list[i].quantity }
+            info = { "description": tempo.foods[i].food.desc, "nutrient": tempo.foods[i].food.nutrients, "quantity": meal_list[i].quantity }
             meal_data.meal_list_info.push(info);
         }
+
         console.log(info)
         console.log(tempo)
         console.log(meal_data)
@@ -317,10 +371,73 @@ $(document).ready(function () {
 
         $('#main_page_update').empty();
 
-        update_daily_resume()
-        update_daily_meals()
+        refresh_page()
 
     }
+
+
+
+    $('#daily_meals').on("click", function () {
+
+        DAILY_MEAL_INDEX = event.target.id
+
+        if (DAILY_MEAL_INDEX.includes("_daily_meals")) {
+
+            DAILY_MEAL_INDEX = parseInt(DAILY_MEAL_INDEX)
+            console.log(DAILY_MEAL_INDEX)
+
+            $('#daily_meal_info').empty();
+
+            console.log(new Date().getHours())
+
+            var name = FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].name
+            var time = FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time.getHours() + ":" + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time.getMinutes()
+
+            console.log(name, time)
+
+            $('#meal_info_name').text(name);
+            $('#meal_info_time').text(time);
+
+
+            for (var i = 0; i < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info.length; i++) {
+
+                var temp = "<table><thead><tr><th>Name</th><th>Curent value</th></tr></thead><tbody>";
+
+                console.log(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient.length)
+                for (var j = 0; j < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient.length; j++) {
+                    temp += span_maker(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].name, (FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity * FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].value / 100) + " " + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].unit)
+                }
+
+                temp += " </tbody></table>"
+
+                console.log(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].description.name)
+
+
+                $('#daily_meal_info').append('<li><div class="collapsible-header">' + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].description.name + '</div><div class="collapsible-body"><input placeholder="Quantity (g)" id="' + i + '_meal_list_quantity" type="number" min="0" value="' + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity + '" class="validate">' + temp + '</div></li>');
+            }
+
+        }
+
+    });
+
+
+    function span_maker(description, value) {
+        return "<tr>" + "<td>" + description + "</td>" + "<td>" + value + "</td>" + "</tr>"
+    }
+
+    $('#daily_meal_edit_delete').click(function a() {
+
+        FOOD[TODAY_INDEX].data.splice(DAILY_MEAL_INDEX, 1)
+        refresh_page()
+
+    });
+
+
+    $('#daily_meal_edit_save').click(function a() {
+
+        console.log("save", DAILY_MEAL_INDEX)
+
+    });
 
 
 
@@ -347,10 +464,6 @@ $(document).ready(function () {
 
 
     console.log(FOOD)
-
-    console.log(new Date(new Date().setHours(0, 0, 0, 0)))
-
-    update_daily_meals()
 
 
 });
