@@ -1,12 +1,16 @@
+//v 1.0
+
 $(document).ready(function () {
 
     var FOOD_DATABASE_KEY = "iLo6AsY2zbirsCYQpoemSIaMb9mNkXTmLyp9Cejj"
-    var FOOD = get_from_local_storage("FOOD")
+    var FOOD = get_food_from_local_storage("FOOD")
     var SAVED_MEALS = []
+    var SAVED_DAY = []
+    var SAVED_SHEDULE = []
 
     //meal edit indexes
     var DAILY_MEAL_INDEX;
-    var TODAY_INDEX;
+    var TODAY_INDEX = -1;
 
     //meal add variables
     var meal_list = [];
@@ -47,7 +51,7 @@ $(document).ready(function () {
     }
 
     //fonction qui retourne l'object sauvegarder dans le storage local.
-    function get_from_local_storage(name) {
+    function get_food_from_local_storage(name) {
         var tempo = JSON.parse(localStorage.getItem(name))
 
         if (tempo) {
@@ -66,6 +70,8 @@ $(document).ready(function () {
                 }
             }
         } else tempo = [];
+
+        console.log(tempo)
 
         return tempo
     }
@@ -117,34 +123,48 @@ $(document).ready(function () {
     function update_daily_resume() {
 
         $('#daily_resume').empty();
-
-        console.log(TODAY_INDEX, DAILY_MEAL_INDEX, )
         var protein = 0
         var carb = 0
         var cal = 0
         var fat_trans = 0
         var fat_sat = 0
-
-
-        console.log(FOOD[TODAY_INDEX].data)
-        console.log(FOOD[TODAY_INDEX].data[0].meal_list_info)
-        console.log(FOOD[TODAY_INDEX].data[0].meal_list_info[0].nutrient)
+        var sugar = 0
 
 
 
-        for (var i = 0; i < FOOD[TODAY_INDEX].data.length; i++) {
-            for (var j = 0; j < FOOD[TODAY_INDEX].data[i].meal_list_info.length; j++) {
-                for (var k = 0; k < FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient.length; k++) {
-                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Protein") protein += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
-                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Energy") cal += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
-                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Carbohydrate, by difference") carb += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
-                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Fatty acids, total trans") fat_trans += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
-                    if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Fatty acids, total saturated") fat_sat += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+        if (TODAY_INDEX != -1) {
+            for (var i = 0; i < FOOD[TODAY_INDEX].data.length; i++) {
+                for (var j = 0; j < FOOD[TODAY_INDEX].data[i].meal_list_info.length; j++) {
+                    for (var k = 0; k < FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient.length; k++) {
+                        if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Protein") protein += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                        if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Energy" && FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].unit == "kcal") cal += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                        if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Carbohydrate, by difference") carb += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                        if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Fatty acids, total trans") fat_trans += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                        if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Fatty acids, total saturated") fat_sat += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+                        if (FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].name == "Sugars, total") sugar += FOOD[TODAY_INDEX].data[i].meal_list_info[j].quantity * FOOD[TODAY_INDEX].data[i].meal_list_info[j].nutrient[k].value / 100
+
+                    }
                 }
             }
         }
 
-        $('#daily_resume').append('<tr><td>' + cal.toFixed(2) + '</td><td>' + protein.toFixed(2) + '</td><td>' + carb.toFixed(2) + '</td><td>' + fat_trans.toFixed(2) + '</td><td>' + fat_sat.toFixed(2) + '</td></tr>');
+        protein =protein.toFixed(2)
+        carb =carb.toFixed(2)
+        cal =cal.toFixed(2)
+        fat_trans=fat_trans.toFixed(2)
+        fat_sat=fat_sat.toFixed(2)
+        sugar=sugar.toFixed(2)
+
+        protein += " g"
+        carb+= " g"
+        cal+= " kcal"
+        fat_trans+=" g"
+        fat_sat+=" g"
+        sugar+=" g"
+
+        
+
+        $('#daily_resume').append('<tr><td>' + cal + '</td><td>' + protein + '</td><td>' + carb + '</td><td>' + fat_trans + '</td><td>' + fat_sat + '</td><td>' + sugar + '</td></tr>');
 
 
 
@@ -160,7 +180,7 @@ $(document).ready(function () {
         }
 
 
-        if (!TODAY_INDEX) return;
+        if (TODAY_INDEX == -1) return;
 
 
         $('#daily_meals').empty();
@@ -195,7 +215,13 @@ $(document).ready(function () {
 
 
     function search_database(name) {
-        httpGetAsync("https://api.nal.usda.gov/ndb/search/?format=json&" + "q=" + name + "&sort=n&max=25&offset=0" + "&api_key=" + FOOD_DATABASE_KEY, search_return)
+
+        var a = ""
+
+        if ($('#food_database_check').is(':checked')) a += "&ds=Standard Reference"
+        console.log(a)
+
+        httpGetAsync("https://api.nal.usda.gov/ndb/search/?format=json&" + "q=" + name + "&sort=r&max=50&offset=0" + a + "&api_key=" + FOOD_DATABASE_KEY, search_return)
     }
 
     function search_return(returned_search) {
@@ -227,7 +253,6 @@ $(document).ready(function () {
             console.log(meal_list)
 
 
-
             update_meal_list()
 
             $('#search').modal('close');
@@ -237,12 +262,28 @@ $(document).ready(function () {
 
 
     function update_meal_list() {
+        console.log("dans le update")
+
+        console.log(meal_list.length)
+
+        for (var j = 0; j < meal_list.length; j++) {
+
+            var temp = '#' + j + 'quantity'
+            meal_list[j].quantity = $(temp).val()
+
+        }
+
         $('#meal_item_list').empty();
 
         for (var i = 0; i < meal_list.length; i++) {
-            $('#meal_item_list').append('<tr><td><p>' + meal_list[i].item.name + '</p></td><td><input placeholder="Quantity (g)" id="' + i + 'quantity" type="number" min="0" value="0" class="validate"></td><td><a class="btn-floating btn-medium waves-effect waves-light red"><i id="' + i + ' delete" class="material-icons">delete</i></a></td></tr>')
+            var temp = 0
+            console.log(meal_list[i])
+            if (meal_list[i].quantity) temp = meal_list[i].quantity
+            $('#meal_item_list').append('<tr><td><p>' + meal_list[i].item.name + '</p></td><td><input placeholder="Quantity (g)" id="' + i + 'quantity" type="number" min="0" value="' + temp + '" class="validate"></td><td><a class="btn-floating btn-medium waves-effect waves-light red"><i id="' + i + ' delete" class="material-icons">delete</i></a></td></tr>')
         }
     }
+
+
 
     //fait en sorte que quand on pese sur enter, ca fonctionne
     $("#search_request_input").keyup(function (event) {
@@ -262,11 +303,13 @@ $(document).ready(function () {
     // toutes les fonctions en rapport avec le meal add
     //******************************************************************************** */
 
+
     $('#save_meal').click(function a() {
+
 
         for (var i = 0; i < meal_list.length; i++) {
             var temp = '#' + i + 'quantity'
-            meal_list[i].quantity = $(temp).val();
+            meal_list[i].quantity = parseInt($(temp).val());
         }
 
 
@@ -286,11 +329,8 @@ $(document).ready(function () {
         } else if ($('#time').val()) {
             var temp = new Date();
             day = new Date(temp.getFullYear() + "-" + (temp.getMonth() + 1) + "-" + temp.getDate() + " " + $('#time').val());
-            console.log(day)
         }
         else day = new Date();
-
-
 
 
         meal_data = { "name": $('#food_name').val(), "time": day, "meal_list_info": [] }
@@ -300,8 +340,6 @@ $(document).ready(function () {
         for (var i = 0; i < meal_list.length; i++) {
             temp_aray.push(meal_list[i].item.ndbno)
         }
-
-        console.log(temp_aray)
 
         $('#main_page_update').empty();
         $('#main_page_update').append('<div class="progress"><div class="indeterminate"></div></div>');
@@ -352,24 +390,25 @@ $(document).ready(function () {
     function nutrition_information_return(returned_search) {
         var tempo = JSON.parse(returned_search)
 
+        console.log(tempo)
+
         var info = { "description": null, "nutrient": null, "quantity": 0 }
 
         console.log(meal_list.length)
 
-        for (var i = 0; i < meal_list.length; i++) {
+        for (var i = 0; i < tempo.foods.length; i++) {
             info = { "description": tempo.foods[i].food.desc, "nutrient": tempo.foods[i].food.nutrients, "quantity": meal_list[i].quantity }
             meal_data.meal_list_info.push(info);
         }
 
-        console.log(info)
-        console.log(tempo)
-        console.log(meal_data)
-        //console.log(tempo.foods[0].food.nutrients)
-        //console.log(tempo.foods[0].foods)
+        console.log(FOOD)
 
         day_push(new Date(), meal_data)
 
         $('#main_page_update').empty();
+
+        meal_list = []
+        update_meal_list()
 
         refresh_page()
 
@@ -388,15 +427,18 @@ $(document).ready(function () {
 
             $('#daily_meal_info').empty();
 
-            console.log(new Date().getHours())
+
+            var minute_compensate = "0";
+            if (FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time.getMinutes() < 10) minute_compensate += FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time.getMinutes()
+            else minute_compensate = FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time.getMinutes()
 
             var name = FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].name
-            var time = FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time.getHours() + ":" + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time.getMinutes()
+            var time = FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time.getHours() + ":" + minute_compensate
 
-            console.log(name, time)
+            console.log(time)
 
-            $('#meal_info_name').text(name);
-            $('#meal_info_time').text(time);
+            $('#edit_meal_name').val(name);
+            $('#edit_meal_time').val(time);
 
 
             for (var i = 0; i < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info.length; i++) {
@@ -405,15 +447,13 @@ $(document).ready(function () {
 
                 console.log(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient.length)
                 for (var j = 0; j < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient.length; j++) {
-                    temp += span_maker(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].name, (FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity * FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].value / 100) + " " + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].unit)
+                    temp += span_maker(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].name, (FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity * FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].value / 100).toFixed(4) + " " + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].unit)
                 }
 
                 temp += " </tbody></table>"
 
-                console.log(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].description.name)
 
-
-                $('#daily_meal_info').append('<li><div class="collapsible-header">' + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].description.name + '</div><div class="collapsible-body"><input placeholder="Quantity (g)" id="' + i + '_meal_list_quantity" type="number" min="0" value="' + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity + '" class="validate">' + temp + '</div></li>');
+                $('#daily_meal_info').append('<li><div class="collapsible-header">' + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].description.name + '</div><div class="collapsible-body"><input placeholder="Quantity (g)" id="' + i + '_edit_meal_quantity" type="number" min="0" value="' + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity + '" class="validate">' + temp + '</div></li>');
             }
 
         }
@@ -428,19 +468,37 @@ $(document).ready(function () {
     $('#daily_meal_edit_delete').click(function a() {
 
         FOOD[TODAY_INDEX].data.splice(DAILY_MEAL_INDEX, 1)
+        save_to_local_storage("FOOD", FOOD)
         refresh_page()
 
     });
 
 
     $('#daily_meal_edit_save').click(function a() {
+        var temp = new Date();
 
-        console.log("save", DAILY_MEAL_INDEX)
+        console.log("save", FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX])
+        console.log(new Date(temp.getFullYear() + "-" + (temp.getMonth() + 1) + "-" + temp.getDate() + " " + $('#edit_meal_time').val()))
+
+        console.log(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time)
+
+        FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].name = $('#edit_meal_name').val();
+        FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].time = new Date(temp.getFullYear() + "-" + (temp.getMonth() + 1) + "-" + temp.getDate() + " " + $('#edit_meal_time').val());
+
+        console.log(parseInt($("#" + DAILY_MEAL_INDEX + "_edit_meal_quantity").val()))
+
+        console.log(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[0])
+
+        for (var i = 0; i < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info.length; i++) {
+
+            FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity = parseInt($("#" + i + "_edit_meal_quantity").val())
+        }
+
+
+        save_to_local_storage("FOOD", FOOD)
+        refresh_page()
 
     });
-
-
-
 
 
 
@@ -464,6 +522,8 @@ $(document).ready(function () {
 
 
     console.log(FOOD)
+
+
 
 
 });
