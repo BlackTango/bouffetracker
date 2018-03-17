@@ -25,6 +25,11 @@ $(document).ready(function () {
     $('input#input_text, textarea#textarea2').characterCounter();
 
 
+    //initialise animation on scroll 
+    AOS.init();
+
+
+
 
     //initialisation
 
@@ -227,7 +232,7 @@ $(document).ready(function () {
 
         for (var i = 0; i < FOOD[TODAY_INDEX].data.length; i++) {
             console.log(FOOD[TODAY_INDEX].data[i].time)
-            console.log(FOOD[TODAY_INDEX].data[i].time<new Date())
+            console.log(FOOD[TODAY_INDEX].data[i].time < new Date())
             $('#daily_meals').append('<tr><td>' + FOOD[TODAY_INDEX].data[i].name + '</td><td><a class="btn-floating btn-medium waves-effect waves-light red s2 modal-trigger" href="#edit_daily_meal"><i id="' + i + '_daily_meals"  class="material-icons">edit</i></a></td></tr>')
         }
 
@@ -388,8 +393,9 @@ $(document).ready(function () {
         } else if ($('#time').val()) {
             var temp = new Date();
             day = new Date(temp.getFullYear() + "-" + (temp.getMonth() + 1) + "-" + temp.getDate() + " " + $('#time').val());
-        }
-        else day = new Date();
+        } else day = new Date();
+
+        console.log(day)
 
 
         meal_data = { "name": $('#food_name').val(), "time": day, "meal_list_info": [] }
@@ -476,7 +482,7 @@ $(document).ready(function () {
         console.log(FOOD)
         console.log(meal_data)
 
-        day_push(new Date(), meal_data)
+        day_push(meal_data.time, meal_data)
 
         SAVED_MEALS.push(meal_data)
         console.log(SAVED_MEALS)
