@@ -43,7 +43,11 @@ $(document).ready(function () {
         if (FOOD[i].date.toString() == new Date(new Date().setHours(0, 0, 0, 0)).toString()) TODAY_INDEX = i;
     }
 
-
+    function update_today_indexe() {
+        for (var i = 0; i < FOOD.length; i++) {
+            if (FOOD[i].date.toString() == new Date(Date.parse($('#day_value').val() + " 00:00"))) TODAY_INDEX = i
+        }
+    }
 
 
 
@@ -56,9 +60,7 @@ $(document).ready(function () {
 
         TODAY_INDEX = -1
 
-        for (var i = 0; i < FOOD.length; i++) {
-            if (FOOD[i].date.toString() == new Date(Date.parse($('#day_value').val() + " 00:00"))) TODAY_INDEX = i
-        }
+        update_today_indexe()
 
         refresh_page()
     });
@@ -507,7 +509,7 @@ $(document).ready(function () {
         meal_list = []
 
         update_meal_list()
-
+        update_today_indexe()
         refresh_page()
     }
 
@@ -574,6 +576,7 @@ $(document).ready(function () {
 
         FOOD[TODAY_INDEX].data.splice(DAILY_MEAL_INDEX, 1)
         save_to_local_storage("FOOD", FOOD)
+        update_today_indexe()
         refresh_page()
 
     });
@@ -601,6 +604,7 @@ $(document).ready(function () {
 
 
         save_to_local_storage("FOOD", FOOD)
+        update_today_indexe()
         refresh_page()
 
     });
