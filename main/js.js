@@ -43,6 +43,25 @@ $(document).ready(function () {
         if (FOOD[i].date.toString() == new Date(new Date().setHours(0, 0, 0, 0)).toString()) TODAY_INDEX = i;
     }
 
+    update_today_input_initialisation()
+
+
+    function update_today_input_initialisation (){
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+         if(dd<10){
+                dd='0'+dd
+            } 
+            if(mm<10){
+                mm='0'+mm
+            } 
+        
+        today = yyyy+'-'+mm+'-'+dd;
+        $('#day_value').val(today)
+    }
+
     function update_today_indexe() {
         for (var i = 0; i < FOOD.length; i++) {
             if (FOOD[i].date.toString() == new Date(Date.parse($('#day_value').val() + " 00:00"))) TODAY_INDEX = i
@@ -64,7 +83,6 @@ $(document).ready(function () {
 
         refresh_page()
     });
-
 
     // fonction pour faire des assync call pour les api 
     function httpGetAsync(theUrl, callback, option1, option2) {
@@ -657,6 +675,8 @@ $(document).ready(function () {
 
         }
 
+        $('#save_meal_to_saved_meal_list').prop('checked', false); // Unchecks it
+
         console.log(SAVED_MEALS)
 
     });
@@ -732,6 +752,7 @@ $(document).ready(function () {
 
             console.log(SAVED_MEALS)
             update_saved_meal_list()
+            save_all()
 
         }
 
@@ -744,7 +765,7 @@ $(document).ready(function () {
 
         for (var j = 0; j < SAVED_MEALS.length; j++) {
 
-            var delete_button = '<a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + j + '_delete_save_meal_from_saved_list" class="material-icons">delete</i></a>'
+            var buttons = '<div class="row center"><div class="col s6"><a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + j + '_delete_save_meal_from_saved_list" class="material-icons">delete</i></a></div><div class="col s6"><a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + j + '_edit_saved_meal_in_saved_meal_list" class="material-icons">edit</i></a></div></div>'
             var temp = "<table><thead><tr><th>Items</th><th>Quantity</th></thead><tbody>"
 
             for (var i = 0; i < SAVED_MEALS[j].meal_list_info.length; i++) {
@@ -753,8 +774,7 @@ $(document).ready(function () {
             }
             temp += "</tbody></table>"
 
-            $('#saved_meals_list_container').append('<ul class="collapsible"><li><div class="collapsible-header">' + SAVED_MEALS[j].name + '</div><div class="collapsible-body center">' + delete_button + temp + '</div></li></ul>');
-
+            $('#saved_meals_list_container').append('<ul class="collapsible"><li><div class="collapsible-header">' + SAVED_MEALS[j].name + '</div><div class="collapsible-body center">' + buttons + temp + '</div></li></ul>');
 
         }
 
