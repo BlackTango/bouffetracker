@@ -16,6 +16,8 @@ $(document).ready(function () {
     var search_result;
     var meal_data;
 
+
+
     //materialize objects initialisations
     $('.timepicker').timepicker();
     $('.fixed-action-btn').floatingActionButton();
@@ -23,6 +25,10 @@ $(document).ready(function () {
     $('.collapsible').collapsible();
     $('.datepicker').datepicker();
     $('input#input_text, textarea#textarea2').characterCounter();
+
+
+
+
 
 
     //initialise animation on scroll 
@@ -40,8 +46,6 @@ $(document).ready(function () {
 
 
 
-    console.log(TODAY_INDEX)
-
 
 
     refresh_page()
@@ -49,8 +53,6 @@ $(document).ready(function () {
     $('#day_value').change(function a() {
         //TODAY_INDEX =  $('#day_value').val(FOOD[TODAY_INDEX].date)
 
-        console.log($('#day_value').val())
-        console.log(new Date(Date.parse($('#day_value').val() + " 00:00")))
 
         TODAY_INDEX = -1
 
@@ -58,7 +60,6 @@ $(document).ready(function () {
             if (FOOD[i].date.toString() == new Date(Date.parse($('#day_value').val() + " 00:00"))) TODAY_INDEX = i
         }
 
-        console.log(TODAY_INDEX)
         refresh_page()
     });
 
@@ -84,6 +85,10 @@ $(document).ready(function () {
     function get_food_from_local_storage(name) {
         var tempo = JSON.parse(localStorage.getItem(name))
 
+        if (!tempo) {
+            return []
+        }
+
         if (name == "FOOD") {
             if (tempo) {
                 for (var i = 0; i < tempo.length; i++) {
@@ -103,7 +108,6 @@ $(document).ready(function () {
             } else tempo = [];
         }
 
-        console.log(tempo)
 
         return tempo
     }
@@ -230,9 +234,9 @@ $(document).ready(function () {
 
 
 
+
+
         for (var i = 0; i < FOOD[TODAY_INDEX].data.length; i++) {
-            console.log(FOOD[TODAY_INDEX].data[i].time)
-            console.log(FOOD[TODAY_INDEX].data[i].time < new Date())
             $('#daily_meals').append('<tr><td>' + FOOD[TODAY_INDEX].data[i].name + '</td><td><a class="btn-floating btn-medium waves-effect waves-light red s2 modal-trigger" href="#edit_daily_meal"><i id="' + i + '_daily_meals"  class="material-icons">edit</i></a></td></tr>')
         }
 
@@ -255,7 +259,7 @@ $(document).ready(function () {
         search_database($('#search_request_input').val());
         $('#search_result_table').empty()
         $('#search_modal_update').empty();
-        $('#search_modal_update').append('<div class="progress"><div class="indeterminate"></div></div>');
+        $('#search_modal_update').append('<div class="progress black"><div class="indeterminate"></div></div>');
 
     });
 
@@ -265,7 +269,6 @@ $(document).ready(function () {
         var a = ""
 
         if ($('#food_database_check').is(':checked')) a += "&ds=Standard Reference"
-        console.log(a)
 
         httpGetAsync("https://api.nal.usda.gov/ndb/search/?format=json&" + "q=" + name + "&sort=r&max=50&offset=0" + a + "&api_key=" + FOOD_DATABASE_KEY, search_return)
     }
@@ -279,7 +282,6 @@ $(document).ready(function () {
 
 
             search_result = temp.list.item;
-            console.log(search_result)
 
             $('#search_result_table').empty();
 
@@ -304,9 +306,6 @@ $(document).ready(function () {
             var id = parseInt(id)
 
             if (IS_INSIDE_EDIT) {
-                console.log("qhy are you inside")
-                console.log("iside edit ", FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info)
-                console.log(search_result[id].ndbno)
                 get_nutrition_information([search_result[id].ndbno])
                 $('#search').modal('close');
             } if (!IS_INSIDE_EDIT) {
@@ -328,7 +327,8 @@ $(document).ready(function () {
     function update_meal_list() {
         console.log("dans le update")
 
-        console.log(meal_list.length)
+        console.log(meal_list)
+
 
         for (var j = 0; j < meal_list.length; j++) {
 
@@ -400,6 +400,9 @@ $(document).ready(function () {
 
         meal_data = { "name": $('#food_name').val(), "time": day, "meal_list_info": [] }
 
+
+
+
         var temp_aray = []
 
         for (var i = 0; i < meal_list.length; i++) {
@@ -407,8 +410,16 @@ $(document).ready(function () {
         }
 
         $('#main_page_update').empty();
-        $('#main_page_update').append('<div class="progress"><div class="indeterminate"></div></div>');
+        $('#main_page_update').append('<div class="progress black"><div class="indeterminate black"></div></div>');
 
+
+        // update_meal_list()
+        if ($('#save_meal_to_saved_meal_list').is(':checked')) SAVED_MEALS.push({ "name": $('#food_name').val(), "time": day, "meal_list_info": meal_list })
+
+
+        $('#food_name').val('')
+        $('#date').val('')
+        $('#time').val('')
         get_nutrition_information(temp_aray)
 
     });
@@ -455,8 +466,11 @@ $(document).ready(function () {
     function nutrition_information_return(returned_search) {
         var tempo = JSON.parse(returned_search)
 
+
         console.log(tempo)
         var info = { "description": null, "nutrient": null, "quantity": 0 }
+
+
 
         if (IS_INSIDE_EDIT) {
             console.log(tempo)
@@ -472,6 +486,7 @@ $(document).ready(function () {
             return
         }
 
+
         console.log(meal_list.length)
 
         for (var i = 0; i < tempo.foods.length; i++) {
@@ -479,21 +494,21 @@ $(document).ready(function () {
             meal_data.meal_list_info.push(info);
         }
 
+
         console.log(FOOD)
         console.log(meal_data)
 
         day_push(meal_data.time, meal_data)
 
-        SAVED_MEALS.push(meal_data)
         console.log(SAVED_MEALS)
 
         $('#main_page_update').empty();
 
         meal_list = []
+
         update_meal_list()
 
         refresh_page()
-
     }
 
     //******************************************************************************** */
@@ -537,11 +552,11 @@ $(document).ready(function () {
 
         for (var i = 0; i < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info.length; i++) {
 
-            var temp = '<div class="center"><a class="btn-floating btn-medium waves-effect waves-light deep-purple darken-3 s2"><i id="' + i + '_delete_meal_edit" class="material-icons">delete</i></a></div><table><thead><tr><th>Name</th><th>Curent value</th></tr></thead><tbody>';
+            var temp = '<div class="center"><a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + i + '_delete_meal_edit" class="material-icons">delete</i></a></div><table><thead><tr><th>Name</th><th>Curent value</th></tr></thead><tbody>';
 
             console.log(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient.length)
             for (var j = 0; j < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient.length; j++) {
-                temp += span_maker(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].name, (FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity * FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].value / 100).toFixed(4) + " " + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].unit)
+                temp += span_maker(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].name, (FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity * FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].value / 100).toFixed(2) + " " + FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].nutrient[j].unit)
             }
 
             temp += " </tbody></table>"
@@ -616,8 +631,140 @@ $(document).ready(function () {
     //***********************************************
     //**********************************
 
+    // toutes les fonctions en rapport avec le add from saved meal
+    //******************************************************************************** */
 
-    var meal_data = { name: "meal2", time: new Date(), food_list: [] }
+
+    $('#add_from_saved').click(function a() {
+
+        $('#saved_meals_meal').empty();
+
+        for (var i = 0; i < SAVED_MEALS.length; i++) {
+            var temp = ""
+
+            for (var j = 0; j < SAVED_MEALS[i].meal_list_info.length; j++) {
+                temp += "<span>"
+                temp += SAVED_MEALS[i].meal_list_info[j].item.name
+                temp += "</span>"
+            }
+
+            $('#saved_meals_meal').append('<div class="row valign-wrapper"> <div class="col s10"> <ul class="collapsible"><li><div class="collapsible-header">' + SAVED_MEALS[i].name + '</div><div id="' + i + 'saved_meals_meal" class="collapsible-body">   ' + temp + '       </div></li></ul> </div> <div class="col s2 center "> <a class="modal-action modal-close btn-floating btn-med waves-effect waves-light red"><i id="' + i + '_add_from_saved" class="material-icons">add</i></a></div> </row>');
+            $('.collapsible').collapsible();
+
+        }
+
+        console.log(SAVED_MEALS)
+
+    });
+
+    $('#saved_meals_meal').on("click", function () {
+
+        console.log(SAVED_MEALS)
+
+        id = event.target.id
+
+        if (id.includes("_add_from_saved")) {
+
+            id = parseInt(id)
+
+
+            $('#food_name').val(SAVED_MEALS[id].name)
+
+            meal_list = [];
+
+
+            for (var i = 0; i < SAVED_MEALS[id].meal_list_info.length; i++) {
+                console.log(SAVED_MEALS[id].meal_list_info[i].quantity)
+
+                console.log(SAVED_MEALS[id].meal_list_info[i].item)
+                var temp = { "item": SAVED_MEALS[id].meal_list_info[i].item, "food": {}, "quantity": SAVED_MEALS[id].meal_list_info[i].quantity }
+
+                console.log(temp)
+                console.log(meal_list)
+                meal_list[i] = temp
+                console.log(meal_list)
+                console.log("ca a rouler " + i)
+            }
+
+            $('#meal_item_list').empty();
+
+            for (var i = 0; i < meal_list.length; i++) {
+                var temp = 0
+                console.log(meal_list[i])
+                if (meal_list[i].quantity) temp = meal_list[i].quantity
+                $('#meal_item_list').append('<tr><td><p>' + meal_list[i].item.name + '</p></td><td><input placeholder="Quantity (g)" id="' + i + 'quantity" type="number" min="0" value="' + temp + '" class="validate"></td><td><a class="btn-floating btn-medium waves-effect waves-light red"><i id="' + i + ' delete" class="material-icons">delete</i></a></td></tr>')
+            }
+
+        }
+
+    });
+
+
+    //******************************************************************************** */
+    //*************************************************************
+    //***********************************************
+    //**********************************
+
+    // toutes les fonctions en rapport avec le saved meal list 
+    //******************************************************************************** */
+
+    $('#saved_meals_list').click(function a() {
+
+        update_saved_meal_list()
+
+
+    });
+
+
+    $('#saved_meals_list_container').on("click", function () {
+        id = event.target.id
+
+        if (id.includes("_delete_save_meal_from_saved_list")) {
+
+            id = parseInt(id)
+
+            SAVED_MEALS.splice(id, 1)
+
+
+            console.log(SAVED_MEALS)
+            update_saved_meal_list()
+
+        }
+
+    });
+
+
+
+    function update_saved_meal_list() {
+        $('#saved_meals_list_container').empty();
+
+        for (var j = 0; j < SAVED_MEALS.length; j++) {
+
+            var delete_button = '<a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + j + '_delete_save_meal_from_saved_list" class="material-icons">delete</i></a>'
+            var temp = "<table><thead><tr><th>Items</th><th>Quantity</th></thead><tbody>"
+
+            for (var i = 0; i < SAVED_MEALS[j].meal_list_info.length; i++) {
+                temp += "<tr><td>" + SAVED_MEALS[j].meal_list_info[i].item.name + "</td>"
+                temp += "<td>" + SAVED_MEALS[j].meal_list_info[i].quantity + "</td></tr>"
+            }
+            temp += "</tbody></table>"
+
+            $('#saved_meals_list_container').append('<ul class="collapsible"><li><div class="collapsible-header">' + SAVED_MEALS[j].name + '</div><div class="collapsible-body center">' + delete_button + temp + '</div></li></ul>');
+
+
+        }
+
+
+        $('.collapsible').collapsible();
+    }
+
+
+
+    //******************************************************************************** */
+    //*************************************************************
+    //***********************************************
+    //**********************************
+
 
     //console.log(FOOD)
 
@@ -626,7 +773,11 @@ $(document).ready(function () {
 
     console.log(FOOD)
 
-
-
     console.log(SAVED_MEALS)
+    //M.toast({ html: '2.1' })
+
+    //localStorage.clear("SAVED_MEALS")
+
+
+
 });
