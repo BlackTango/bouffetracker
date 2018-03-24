@@ -8,6 +8,10 @@ $(document).ready(function () {
 
     //meal edit indexes and variable
     var IS_INSIDE_EDIT = false;
+    var IS_INSIDE_SAVED_EDIT = false;
+
+    var SAVED_MEAL_INDEX = 0;
+
     var DAILY_MEAL_INDEX;
     var TODAY_INDEX = -1;
 
@@ -35,8 +39,6 @@ $(document).ready(function () {
     AOS.init();
 
 
-
-
     //initialisation
 
     for (var i = 0; i < FOOD.length; i++) {
@@ -46,19 +48,19 @@ $(document).ready(function () {
     update_today_input_initialisation()
 
 
-    function update_today_input_initialisation (){
+    function update_today_input_initialisation() {
         var today = new Date();
         var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
+        var mm = today.getMonth() + 1; //January is 0!
         var yyyy = today.getFullYear();
-         if(dd<10){
-                dd='0'+dd
-            } 
-            if(mm<10){
-                mm='0'+mm
-            } 
-        
-        today = yyyy+'-'+mm+'-'+dd;
+        if (dd < 10) {
+            dd = '0' + dd
+        }
+        if (mm < 10) {
+            mm = '0' + mm
+        }
+
+        today = yyyy + '-' + mm + '-' + dd;
         $('#day_value').val(today)
     }
 
@@ -234,7 +236,7 @@ $(document).ready(function () {
 
 
 
-        $('#daily_resume').append('<tr><td>' + cal + '</td><td>' + protein + '</td><td>' + carb + '</td><td>' + fat_trans + '</td><td>' + fat_sat + '</td><td>' + sugar + '</td></tr>');
+        $('#daily_resume').append('<tr><td data-aos-offset="-500" data-aos="zoom-in">' + cal + '</td><td data-aos="zoom-in" data-aos-offset="-500" data-aos-delay="50">' + protein + '</td><td data-aos="zoom-in" data-aos-offset="-500" data-aos-delay="100">' + carb + '</td><td data-aos="zoom-in" data-aos-offset="-500" data-aos-delay="150">' + fat_trans + '</td><td data-aos="zoom-in" data-aos-offset="-500" data-aos-delay="200">' + fat_sat + '</td><td data-aos="zoom-in" data-aos-offset="-500" data-aos-delay="250">' + sugar + '</td></tr>');
 
 
 
@@ -279,8 +281,7 @@ $(document).ready(function () {
         search_database($('#search_request_input').val());
         $('#search_result_table').empty()
         $('#search_modal_update').empty();
-        $('#search_modal_update').append('<div class="progress black"><div class="indeterminate"></div></div>');
-
+        $('#search_modal_update').append('<div class="progress"><div class="indeterminate"></div></div>');
     });
 
 
@@ -300,8 +301,10 @@ $(document).ready(function () {
         var temp = JSON.parse(returned_search)
         if (!temp.errors) {
 
-
             search_result = temp.list.item;
+
+            console.log(search_result)
+
 
             $('#search_result_table').empty();
 
@@ -328,8 +331,21 @@ $(document).ready(function () {
             if (IS_INSIDE_EDIT) {
                 get_nutrition_information([search_result[id].ndbno])
                 $('#search').modal('close');
-            } if (!IS_INSIDE_EDIT) {
+            } if (IS_INSIDE_SAVED_EDIT) {
+                console.log("dans le saved edit")
 
+                //get_nutrition_information([search_result[id].ndbno])
+
+                SAVED_MEALS[SAVED_MEAL_INDEX].meal_list_info.push({ "item": search_result[id], "quantity": 0, "food": {} })
+
+
+
+                update_edit_saved_meal(SAVED_MEAL_INDEX)
+
+
+                console.log(SAVED_MEALS)
+                $('#search').modal('close');
+            } else {
                 meal_list.push({ "item": search_result[id], "quantity": 0, "food": {} })
                 console.log(meal_list)
 
@@ -338,6 +354,8 @@ $(document).ready(function () {
 
                 $('#search').modal('close');
             }
+
+
 
 
         }
@@ -354,6 +372,7 @@ $(document).ready(function () {
 
             var temp = '#' + j + 'quantity'
             meal_list[j].quantity = $(temp).val()
+
 
         }
 
@@ -430,7 +449,7 @@ $(document).ready(function () {
         }
 
         $('#main_page_update').empty();
-        $('#main_page_update').append('<div class="progress black"><div class="indeterminate black"></div></div>');
+        $('#main_page_update').append('<div class="progress"><div class="indeterminate"></div></div>');
 
 
         // update_meal_list()
@@ -507,6 +526,8 @@ $(document).ready(function () {
         }
 
 
+
+
         console.log(meal_list.length)
 
         for (var i = 0; i < tempo.foods.length; i++) {
@@ -530,6 +551,15 @@ $(document).ready(function () {
         update_today_indexe()
         refresh_page()
     }
+
+
+
+
+    $('#add_new_meal').click(function a() {
+        console.log("lol")
+        $('#save_meal_to_saved_meal_list').prop('checked', true);
+    });
+
 
     //******************************************************************************** */
     //*************************************************************
@@ -615,9 +645,11 @@ $(document).ready(function () {
 
         console.log(FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[0])
 
-        for (var i = 0; i < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info.length; i++) {
 
-            FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity = parseInt($("#" + i + "_edit_meal_quantity").val())
+        for (var i = 0; i < FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info.length; i++) {
+            FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity = parseInt($("#" + i + "_edit_meal_quantity").val());
+            if (!FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity < 0) FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity = 0
+            if (!FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity) FOOD[TODAY_INDEX].data[DAILY_MEAL_INDEX].meal_list_info[i].quantity = 0
         }
 
 
@@ -631,7 +663,7 @@ $(document).ready(function () {
 
     $('#daily_meal_info').on("click", function () {
 
-        id = event.target.id
+        var id = event.target.id
 
         if (id.includes("_delete_meal_edit")) {
 
@@ -685,7 +717,7 @@ $(document).ready(function () {
 
         console.log(SAVED_MEALS)
 
-        id = event.target.id
+        var id = event.target.id
 
         if (id.includes("_add_from_saved")) {
 
@@ -724,6 +756,8 @@ $(document).ready(function () {
     });
 
 
+
+
     //******************************************************************************** */
     //*************************************************************
     //***********************************************
@@ -741,7 +775,7 @@ $(document).ready(function () {
 
 
     $('#saved_meals_list_container').on("click", function () {
-        id = event.target.id
+        var id = event.target.id
 
         if (id.includes("_delete_save_meal_from_saved_list")) {
 
@@ -756,7 +790,32 @@ $(document).ready(function () {
 
         }
 
+        if (id.includes("_edit_saved_meal_in_saved_meal_list")) {
+
+            id = parseInt(id)
+            console.log(id)
+
+            SAVED_MEAL_INDEX = id
+
+
+            update_edit_saved_meal(SAVED_MEAL_INDEX)
+        }
+
     });
+
+    function update_edit_saved_meal(s_index) {
+
+        $('#edit_saved_meal_name').val(SAVED_MEALS[s_index].name)
+        $('#saved_daily_meal_info').empty();
+
+
+        for (j in SAVED_MEALS[s_index].meal_list_info) {
+            var temp = 0
+            console.log(SAVED_MEALS[s_index].meal_list_info[j].item.name)
+            $('#saved_daily_meal_info').append('<tr><td><p>' + SAVED_MEALS[s_index].meal_list_info[j].item.name + '</p></td><td><input placeholder="Quantity (g)" id="' + j + '_saved_meal_quantity" type="number" min="0" value="' + temp + '" class="validate"></td><td><a class="btn-floating btn-medium waves-effect waves-light red"><i id="' + j + '_save_meal_delete" class="material-icons">delete</i></a></td></tr>')
+        }
+
+    }
 
 
 
@@ -765,7 +824,7 @@ $(document).ready(function () {
 
         for (var j = 0; j < SAVED_MEALS.length; j++) {
 
-            var buttons = '<div class="row center"><div class="col s6"><a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + j + '_delete_save_meal_from_saved_list" class="material-icons">delete</i></a></div><div class="col s6"><a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + j + '_edit_saved_meal_in_saved_meal_list" class="material-icons">edit</i></a></div></div>'
+            var buttons = '<div class="row center"><div class="col s6"><a class="btn-floating btn-medium waves-effect waves-light red s2"><i id="' + j + '_delete_save_meal_from_saved_list" class="material-icons">delete</i></a></div><div class="col s6"><a href="#edit_saved_daily_meal" class="modal-trigger btn-floating btn-medium waves-effect waves-light red s2"><i id="' + j + '_edit_saved_meal_in_saved_meal_list" class="material-icons">edit</i></a></div></div>'
             var temp = "<table><thead><tr><th>Items</th><th>Quantity</th></thead><tbody>"
 
             for (var i = 0; i < SAVED_MEALS[j].meal_list_info.length; i++) {
@@ -778,9 +837,38 @@ $(document).ready(function () {
 
         }
 
-
         $('.collapsible').collapsible();
     }
+
+    $('#send_search_request_saved_meal_edit').on("click", function () {
+        IS_INSIDE_SAVED_EDIT = true;
+
+        console.log("lol", IS_INSIDE_SAVED_EDIT)
+    });
+
+
+
+
+    $('#saved_meal_edit_save').click(function a() {
+
+        console.log("en train de save le edit meal")
+
+        SAVED_MEALS[SAVED_MEAL_INDEX].name = $('#edit_saved_meal_name').val()
+
+        for (i in SAVED_MEALS[SAVED_MEAL_INDEX].meal_list_info) {
+            console.log(parseInt($("#" + i + "_saved_meal_quantity").val()))
+
+            if (!parseInt($("#" + i + "_saved_meal_quantity").val())) SAVED_MEALS[SAVED_MEAL_INDEX].meal_list_info[i].quantity = 0
+            else SAVED_MEALS[SAVED_MEAL_INDEX].meal_list_info[i].quantity = parseInt($("#" + i + "_saved_meal_quantity").val())
+        }
+
+
+        update_saved_meal_list()
+
+        save_all()
+    });
+
+
 
 
 
